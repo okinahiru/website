@@ -2,7 +2,7 @@
 title: ""
 tagline: ""
 description: ""
-baseurl: "/dsc180-website" # Keep this for GitHub Pages
+baseurl: "/website"
 url: "https://okinahiru.github.io"
 permalink: pretty
 
