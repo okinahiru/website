@@ -18,7 +18,7 @@ Chip design often relies on **place-and-route (PnR)** tools, which iteratively a
 
 A more efficient alternative is **data-driven optimization**, where machine learning models predict possible bottlenecks—such as **congestion**—early in the design cycle. With congestion insights in hand, designers can fine-tune component placement and wiring to reduce wasted resources, speeding up the entire process. A **netlist** helps in this task by modeling the circuit as a **hypergraph**: nodes represent components (like logic gates), and hyperedges capture their electrical connections.
 
-**DE-HNN** (Demand-Estimating Hypergraph Neural Network) is a leading approach for learning from this netlist structure. By using **hierarchical virtual nodes** to capture both local and long-range interactions in the graph, DE-HNN excels at predicting congestion or “demand.” However, it requires substantial compute power and memory, which can limit its practical use.
+**DE-HNN** (Demand-Estimating Hypergraph Neural Network) [1] is a leading approach for learning from this netlist structure. By using **hierarchical virtual nodes** to capture both local and long-range interactions in the graph, DE-HNN excels at predicting congestion or “demand.” However, it requires substantial compute power and memory, which can limit its practical use.
 
 Our project focuses on **optimizing DE-HNN’s training cost**—reducing runtime or memory needs—while preserving, as much as possible, the **model’s predictive accuracy** on congestion. This balance between efficiency and performance is crucial for making advanced ML-based chip design viable in real-world production flows.
 
@@ -87,7 +87,7 @@ We adopted an **iterative** optimization approach to make our DE-HNN model more 
 
 3. **Dynamic Learning Rate (DLR)**
    - **Motivation**: A fixed learning rate can cause slow convergence or getting stuck in local minima. Gradually decreasing the learning rate might help, but often requires trial-and-error to find the right schedule.
-   - **Method**: We implement a **Cyclical Learning Rate (CLR)**, where the learning rate oscillates between a lower and upper bound within each cycle. This helps the model “jump out” of poor local minima and often converges faster.
+   - **Method**: We implement a **Cyclical Learning Rate (CLR)** [2], where the learning rate oscillates between a lower and upper bound within each cycle. This helps the model “jump out” of poor local minima and often converges faster.
    - **Benefits**: Eliminates manual tuning of step decay or exponential decay schedules, adapts dynamically to the training process, and can reduce total epochs needed.
 
 Overall, each stage in this optimization pipeline—Early Stopping, Architecture Adjustments, and a Dynamic Learning Rate—targets a different facet of model complexity and convergence. By layering them together, we significantly cut down on training time and resource usage, while preserving DE-HNN’s strong performance in predicting IC congestion.
@@ -102,8 +102,8 @@ Our **baseline DE-HNN** uses:
 
 This baseline achieves:
 
-- **133 MSE** on Node Loss
-- **67.5 MSE** on Net Loss
+- **133 MSE** on Node loss
+- **67.5 MSE** on Net loss
 - **5.05 minutes** of total runtime
 - **~22 GB** of peak GPU memory usage
 
@@ -136,56 +136,32 @@ In short, the baseline model was over-training well past epoch 15, and Early Sto
 
 We systematically tested different **DE-HNN** configurations (2, 3, or 4 layers) paired with various embedding dimensions (8, 16, or 32). **Early Stopping** was applied to avoid training beyond the point of overfitting. Our goal was to find a balance between performance (Node/Net MSE) and resource savings (training time, memory usage).
 
-Below are key heatmaps illustrating various metrics:
-
-<p align="center">
-   <img src="{{ site.baseurl }}/public/img/heatmap_avg_all_pct.png" alt="All Metrics Reduction Heatmap" width="600">
-   <br>
-   <em>Figure 3: Average % reduction across runtime, memory, and losses.</em>
-</p>
+Below are key heatmaps illustrating reduction in training cost and model performance in %:
 
 <p align="center">
    <img src="{{ site.baseurl }}/public/img/heatmap_avg_cost_pct.png" alt="Training Time & Memory Reduction Heatmap" width="600">
    <br>
-   <em>Figure 4: Average % reduction in training time and peak memory usage.</em>
+   <em>Figure 3: Average % reduction in training cost.</em>
 </p>
 
 <p align="center">
    <img src="{{ site.baseurl }}/public/img/heatmap_avg_val_pct.png" alt="Validation Node & Net MSE Reduction Heatmap" width="600">
    <br>
-   <em>Figure 5: Average % reduction in validation Node and Net MSE.</em>
+   <em>Figure 4: Average % reduction in model performance.</em>
 </p>
 
 <p align="center">
-   <img src="{{ site.baseurl }}/public/img/heatmap_peak_memory.png" alt="Peak GPU Memory Reduction Heatmap" width="600">
+   <img src="{{ site.baseurl }}/public/img/heatmap_avg_all_pct.png" alt="All Metrics Reduction Heatmap" width="600">
    <br>
-   <em>Figure 6: Peak GPU memory footprint for each configuration.</em>
+   <em>Figure 5: Average % reduction across computational cost and model performance.</em>
 </p>
 
-<p align="center">
-   <img src="{{ site.baseurl }}/public/img/heatmap_train_time.png" alt="Training Time Reduction Heatmap" width="600">
-   <br>
-   <em>Figure 7: % reduction in total training time.</em>
-</p>
-
-<p align="center">
-   <img src="{{ site.baseurl }}/public/img/heatmap_val_net.png" alt="Validation Net MSE Reduction Heatmap" width="600">
-   <br>
-   <em>Figure 8: Impact on Net MSE across different architectures.</em>
-</p>
-
-<p align="center">
-   <img src="{{ site.baseurl }}/public/img/heatmap_val_node.png" alt="Validation Node MSE Reduction Heatmap" width="600">
-   <br>
-   <em>Figure 9: Impact on Node MSE across different architectures.</em>
-</p>
-
-Finally, we show the training curves for the **best configuration** (4 layers, 8 dimensions):
+We picked model with 4 layers, 8 dimensions to be our Grid Search optimal model. The loss curves for this model is shown below:
 
 <p align="center">
    <img src="{{ site.baseurl }}/public/img/earlystop-architectureadjustment_loss_curves.png" alt="Loss Curves for 4-layer, 8-dim Model" width="600">
    <br>
-   <em>Figure 10: Validation loss remains stable, indicating less overfitting.</em>
+   <em>Figure 6: Validation loss remains stable, indicating less overfitting.</em>
 </p>
 
 In summary:
@@ -201,23 +177,23 @@ Lastly, we introduced a **Cyclical Learning Rate (CLR)** that oscillates between
 <p align="center">
    <img src="{{ site.baseurl }}/public/img/earlystop-architectureadjustment_loss_curves.png" alt="CLR on Optimized Model" width="600">
    <br>
-   <em>Figure 11: CLR further reduces the required epochs, though Net MSE sees a trade-off.</em>
+   <em>Figure 7: CLR further reduces the required epochs, though Net MSE sees a trade-off.</em>
 </p>
 
 - **Key Outcomes**:
-  - Training often ended by **epoch 11** (vs. 25), a substantial cut from the 100-epoch baseline.
-  - **Node MSE** improved by **6.4%**; **Net MSE** increased by **17.6%**, showing that CLR helped one objective but introduced trade-offs in the other.
+  - Training often ended by **epoch 11** (vs. 25 in Grid Search optimal model), a substantial cut from the 100-epoch baseline.
+  - **Node MSE** reduced by **6.4%**; **Net MSE** increased by **17.6%**, showing that CLR helped one objective but introduced trade-offs in the other.
   - Memory savings from the previous steps persisted, and overall runtime was sharply reduced.
 
 Despite the slight Net MSE compromise, **DLR** significantly shortened training, suggesting a valuable option for faster convergence when node-level demand accuracy is paramount.
 
-### **Overall Improvements**
+### **Optimized Model**
 
-By stacking these optimizations:
+By stacking these optimizations, our final optimized model has achieved these statistics:
 
 - **Runtime** dropped by **89.32%**
 - **Memory usage** decreased by **38.83%**
-- **Node MSE** stayed near or below baseline, and **Net MSE** varied based on the chosen optimization.
+- **Node MSE** decreased by **6.4%**, and **Net MSE** increased by **17.6%**, corresponding to a **6% average performance drop**.
 
 These results confirm that **DE-HNN** can be made significantly more practical by controlling overfitting (ES), reducing model complexity (AA), and speeding up convergence (DLR)—all while maintaining strong predictive accuracy for node demand.
 
@@ -229,14 +205,10 @@ Through a series of **iterative optimizations**, we transformed DE-HNN from a hi
 - **Early Stopping**: Stops training when validation loss stops improving, **reducing epochs** without compromising accuracy.
 - **Cyclical Learning Rate**: Speeds up convergence by oscillating between a lower and higher learning rate, effectively shortening training time even further.
 
-Overall, we observed:
-
-- **89% reduction** in runtime
-- **~39%** lower peak memory usage
-- **<6%** drop in average performance
-
 These results highlight the **trade-off** between performance and computational resources in real-world applications. By **systematically** combining Early Stopping, Architecture Adjustments, and a Dynamic Learning Rate, we’ve shown that **DE-HNN** can be scaled down to meet resource constraints while retaining most of its predictive power. This lays the groundwork for **faster, more cost-effective** congestion prediction in IC design.
 
 ## References
 
 [1] Luo, Zhishang, Truong Son Hy, Puoya Tabaghi, Donghyeon Koh, Michael Defferrard, Elahe Rezaei, Ryan Carey, Rhett Davis, Rajeev Jain, and Yusu Wang. (2024). **DE-HNN: An effective neural model for Circuit Netlist representation**. _arXiv preprint_, [arXiv:2404.00477](https://arxiv.org/abs/2404.00477).
+Smith, Leslie N. 2015. “No More Pesky Learning Rate Guessing Games.” CoRR
+[arXiv:1506.01186](https://arxiv.org/abs/1506.01186)
