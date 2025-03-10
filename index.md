@@ -14,7 +14,7 @@ title: "Optimizing Training Cost for Scalable Graph Processing"
 
 ## **Introduction**
 
-Chip design often relies on **place-and-route (PnR)** tools, which iteratively arrange and connect millions of components (logic gates, wires, etc.) on a chip. While powerful, these traditional flows can be **time-consuming** and **complex**, since each design iteration must carefully balance factors like performance, power consumption, and physical layout constraints.
+Chip design often relies on **place-and-route (PnR)** tools, which iteratively arrange and connect millions of components (logic gates, wires, etc.) on a chip. While these traditional flows work, they can be **time-consuming** and **labor-intensive**, since each design iteration must carefully balance factors like performance, power consumption, and physical layout constraints.
 
 A more efficient alternative is **data-driven optimization**, where machine learning models predict possible bottlenecks—such as **congestion**—early in the design cycle. With congestion insights in hand, designers can fine-tune component placement and wiring to reduce wasted resources, speeding up the entire process. A **netlist** helps in this task by modeling the circuit as a **hypergraph**: nodes represent components (like logic gates), and hyperedges capture their electrical connections.
 
@@ -51,7 +51,7 @@ Below is a summary of the main features used in our model:
 
 #### **Representation Features**
 
-- **Nodes Representations**: Learned embeddings of individual nodes.
+- **Nodes Representations**: Learned embeddings of individual nodes and their neighbors.
 - **Nets Representations**: Learned embeddings of nets.
 - **Virtual Nodes Representations**: Learned embeddings of the virtual (aggregate) nodes.
 
