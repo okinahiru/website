@@ -156,7 +156,7 @@ Below are key heatmaps illustrating reduction in training cost and model perform
    <em>Figure 5: Average % reduction across computational cost and model performance.</em>
 </p>
 
-We picked model with 4 layers, 8 dimensions to be our Grid Search optimal model. The loss curves for this model is shown below:
+We picked the model with 4 layers, 8 dimensions to be our Grid Search optimal model. The loss curves for this model is shown below:
 
 <p align="center">
    <img src="{{ site.baseurl }}/public/img/earlystop-architectureadjustment_loss_curves.png" alt="Loss Curves for 4-layer, 8-dim Model" width="600">
@@ -210,5 +210,6 @@ These results highlight the **trade-off** between performance and computational 
 ## References
 
 [1] Luo, Zhishang, Truong Son Hy, Puoya Tabaghi, Donghyeon Koh, Michael Defferrard, Elahe Rezaei, Ryan Carey, Rhett Davis, Rajeev Jain, and Yusu Wang. (2024). **DE-HNN: An effective neural model for Circuit Netlist representation**. _arXiv preprint_, [arXiv:2404.00477](https://arxiv.org/abs/2404.00477).
-Smith, Leslie N. 2015. “No More Pesky Learning Rate Guessing Games.” CoRR
+
+[2] Smith, Leslie N. 2015. “No More Pesky Learning Rate Guessing Games.” CoRR
 [arXiv:1506.01186](https://arxiv.org/abs/1506.01186)
